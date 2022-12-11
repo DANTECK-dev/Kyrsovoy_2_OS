@@ -28,36 +28,40 @@
                             <ColumnDefinition Width="139"></ColumnDefinition>
                             <ColumnDefinition Width="119"></ColumnDefinition>
                             <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="0.4*"/>
                             <ColumnDefinition Width="139"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="Button_Start_Processes" IsEnabled="True" Content="Запустить систему" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Start_Processes_Click"/>
                         <Button x:Name="Button_Stop_Processes" IsEnabled="True" Grid.Row="1" Content="Остановить систему" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Stop_Processes_Click"/>
                         <Button x:Name="Button_Clear_Processes" IsEnabled="True" Grid.Row="2" Content="Очистить" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Clear_Processes_Click"/>
-                        <Label Content="Приоритет" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
+                        <Label Content="Очередь" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
                         <Label Content="Время выполнения" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="110" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
                         <Label Content="PID" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
-                        <Grid Grid.Column="2" Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <ComboBox x:Name="ComboBox_Priority" Grid.Column="0" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="165" MinHeight="23" MaxHeight="500" MaxWidth="500" DropDownClosed="Process_control_algorithm_comboBox_DropDownClosed"/>
-                            <TextBox x:Name="TextBox_Priority" Grid.Column="1" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="165" MinHeight="23" MaxHeight="500" MaxWidth="500" TextAlignment="Center" TextChanged="TextBox_Priority_TextChanged"/>
-                        </Grid>
-                        <TextBox x:Name="TextBox_Exec_Time" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="345" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_Exec_Time_TextChanged"/>
-                        <TextBox x:Name="TextBox_PID" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="345" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_PID_TextChanged"/>
 
-                        <Button x:Name="Button_Create_Processes" IsEnabled="True" Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Content="Создать процесс" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="120" MinHeight="40" Click="Button_Create_Processes_Click"/>
-                        <Button x:Name="Button_Delete_Processes" IsEnabled="True" Grid.Row="2" Grid.Column="3" Content="Удалить процесс" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Delete_Processes_Click"/>
+                        <ComboBox x:Name="ComboBox_Priority" Grid.Column="2" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="280" MinHeight="23" MaxHeight="500" MaxWidth="500"/>
+                        <TextBox x:Name="TextBox_Quantum_Time" Grid.Column="3" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="105" MinHeight="23" MaxHeight="500" MaxWidth="500" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
+                        <TextBox x:Name="TextBox_Exec_Time" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="280" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
+                        <Label Content="Время появлния" Grid.Row="1" Grid.Column="3" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBox x:Name="TextBox_Waiting_Time" Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="120" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
+                        <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="0"/>
+                        <GroupBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"/>
+                        <GroupBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="0"/>
+                        <GroupBox Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3" Margin="0"/>
+                        <GroupBox Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" Margin="0"/>
+                        <GroupBox Header="Квант времени" Grid.Column="3" Grid.Row="0" Margin="0,-10,0,0"/>
+                        <TextBox x:Name="TextBox_PID" Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="400" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
+
+                        <Button x:Name="Button_Create_Processes" IsEnabled="True" Grid.Row="0" Grid.Column="4" Content="Создать процесс" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="120" MinHeight="20" Click="Button_Create_Processes_Click"/>
+                        <Button x:Name="Button_Delete_Processes" IsEnabled="True" Grid.Row="2" Grid.Column="4" Content="Удалить процесс" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Delete_Processes_Click"/>
                         
-                        <Grid Grid.Column="4" Grid.Row="0" Grid.RowSpan="3">
+                        <Grid Grid.Column="5" Grid.Row="0" Grid.RowSpan="3">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="5*"/>
+                                <ColumnDefinition Width="8*"/>
                                 <ColumnDefinition Width="6*"/>
                             </Grid.ColumnDefinitions>
                             <Label Content="Среднее время выполнения" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -67,7 +71,7 @@
                         </Grid>
                     </Grid>
                     <Grid Grid.Row="1">
-                        <DataGrid x:Name="Process_DataGrid" ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" Grid.Column="1" CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"/>
+                        <DataGrid x:Name="Process_DataGrid" ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" Grid.Column="1" CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True" SelectedCellsChanged="Process_DataGrid_SelectedCellsChanged"/>
 
                     </Grid>
                 </Grid>
@@ -103,7 +107,7 @@
                                 <ColumnDefinition Width="10*"/>
                             </Grid.ColumnDefinitions>
                             <Label Content="Адрес" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBox x:Name="Address_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextChanged="Address_TextBox_TextChanged" />
+                            <TextBox x:Name="Address_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextChanged="TextBox_INT_TextChanged" />
                             <Button x:Name="Address_Increment_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="5" Grid.Column="2" Click="Address_Increment_Button_Click" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="26"/>
                             <Button x:Name="Address_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" HorizontalAlignment="Left" Width="25" Click="Address_Decrement_Button_Click"/>
                             <Button x:Name="Address_Content_Button" IsEnabled="false" Content="Содержимое" Grid.Column="5" Click="Address_Content_Button_Click"/>
@@ -193,7 +197,7 @@
                                 <ColumnDefinition Width="10*"/>
                             </Grid.ColumnDefinitions>
                             <Label Content="Сектор" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBox x:Name="Sector_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" TextChanged="Sector_TextBox_TextChanged" />
+                            <TextBox x:Name="Sector_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged" />
                             <Button x:Name="Sector_Increment_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="5" Grid.Column="2" Click="Sector_Increment_Button_Click"/>
                             <Button x:Name="Sector_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" Click="Sector_Decrement_Button_Click"/>
                             <Button x:Name="Sector_Content_Button" IsEnabled="false" Content="Содержимое" Grid.Column="5" Click="Sector_Content_Button_Click"/>

@@ -18,6 +18,7 @@ using System.Runtime;
 using System.Data;
 using System.Reflection;
 using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace Kyrsovoy_2_OS
 {
@@ -26,207 +27,181 @@ namespace Kyrsovoy_2_OS
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool Selected_Process_control_algorithm = false;
-        bool Selected_Memory_control_algorithm = false;
-        bool Selected_VSU_control_algorithm = false;
-        bool Started = false;
-
         DataTable ProcessDataTable = new DataTable();
 
         List<nProcess> processList = new List<nProcess>();
 
+        DispatcherTimer timer = new DispatcherTimer();
+
         public MainWindow()
         {
             InitializeComponent();
-            ComboBox_Priority.Items.Add("высокий приоритет – Round robin");
             ComboBox_Priority.Items.Add("низкий приоритет – FCFS");
+            ComboBox_Priority.Items.Add("высокий приоритет – Round robin");
 
-            //int p = new int();
-            //Byte[] value = { 12, 13, 2 };
-
-            //DLL.WriteMemory(ref p, value, 3);
-
-            //MessageBox.Show(DLL.ReadMemory(ref p, 3)[2].ToString());
-
-
-            //Process_StatusBar.Items.Add(new Separator());
-            //Process_StatusBar.Items.Add("hui");
-            //MessageBox.Show(DLL.GetPhysMemoryBlockCount().ToString());
-
+            timer.Interval = TimeSpan.FromSeconds(0.1);
+            timer.Tick += Timer_Tick;
 
             Refresh_ProcessGrid();
         }
 
+
+        List<List<nProcess>> lhProcesses = new List<List<nProcess?>?>();
+
+
+        int tact = 0;
+        bool done_0 = false;
+        bool done_1 = false;
+        double Exec = 0;
+        double Waiting = 0;
+        int Quant = 0;
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            if (done_0 && done_1)
+            {
+                timer.Stop();
+                return;
+            }
+
+            if (tact % 3 == 0)
+            {
+                Console.WriteLine("123");
+            }
+
+            bool worked = false;
+
+            ProcessDataTable.Columns.Add(new DataColumn(tact.ToString(), typeof(string)) { AllowDBNull = true, DefaultValue = "", Unique = false });
+            DataGridTextColumn textColumn = new DataGridTextColumn();
+            textColumn.Header = tact.ToString();
+            textColumn.Binding = new Binding(tact.ToString());
+            Process_DataGrid.Columns.Add(textColumn);
+
+            if (tact % int.Parse(TextBox_Quantum_Time.Text) == 0 && lhProcesses[1] != null);
+            {
+                for (int i = 0; i < lhProcesses[1].Count - 1; i++)
+                {
+                    if (i == 0)
+                    {
+                        nProcess temp = lhProcesses[1][i];
+                        lhProcesses[1][i] = lhProcesses[1][lhProcesses[1].Count - 1];
+                        lhProcesses[1][lhProcesses[1].Count - 1] = temp;
+                    }
+                    else
+                    {
+                        (lhProcesses[1][i + 1], lhProcesses[1][i]) = (lhProcesses[1][i], lhProcesses[1][i + 1]);
+                        i++;
+                    }
+                }
+
+            }
+
+            if (!done_1 && lhProcesses[1] != null)
+                for (int j = 0; j < lhProcesses[1].Count; j++)  // high
+                {
+
+                    if (lhProcesses[1][j].createTime > tact)
+                        continue;
+                    if (lhProcesses[1][j].cpuBurst <= 0)
+                    {
+                        lhProcesses[1][j].work = false;
+                        continue;
+                    }
+                    if (worked)
+                    {
+                        for (int k = 0; k < ProcessDataTable.Rows.Count; k++)
+                            if (ProcessDataTable.Rows[k][0].ToString() == lhProcesses[1][j].id.ToString())
+                            {
+                                ProcessDataTable.Rows[k][tact.ToString()] = "Г";
+                                Waiting++;
+                            }
+                        continue;
+                    }
+
+                    for (int k = 0; k < ProcessDataTable.Rows.Count; k++)
+                        if (ProcessDataTable.Rows[k][0].ToString() == lhProcesses[1][j].id.ToString())
+                        {
+
+                            int burst = lhProcesses[1][j].cpuBurst;
+                            //for (int i = 0; i < int.Parse(TextBox_Quantum_Time.Text) && i < burst; i++)
+                            //{
+                            ProcessDataTable.Rows[k][tact.ToString()] = "И";
+                            lhProcesses[1][j].cpuBurst--;
+                            Exec++;
+                            worked = true;
+                            //}
+                            break;
+                        }
+                }
+
+            if (lhProcesses[0] != null)
+                for (int j = 0; j < lhProcesses[0].Count; j++)  // low
+                {
+                    if (lhProcesses[0][j].createTime > tact)
+                        continue;
+                    if (lhProcesses[0][j].cpuBurst <= 0)
+                    {
+                        lhProcesses[0][j].work = false;
+                        continue;
+                    }
+                    if (worked)
+                    {
+                        for (int k = 0; k < ProcessDataTable.Rows.Count; k++)
+                            if (ProcessDataTable.Rows[k][0].ToString() == lhProcesses[0][j].id.ToString())
+                            {
+                                ProcessDataTable.Rows[k][tact.ToString()] = "Г";
+                                Waiting++;
+                            }
+                        continue;
+                    }
+
+                    for (int k = 0; k < ProcessDataTable.Rows.Count; k++)
+                        if (ProcessDataTable.Rows[k][0].ToString() == lhProcesses[0][j].id.ToString())
+                        {
+                            int burst = lhProcesses[0][j].cpuBurst;
+                            //for (int i = 0; i < burst; i++)
+                            //{
+                            ProcessDataTable.Rows[k][tact.ToString()] = "И";
+                            lhProcesses[0][j].cpuBurst--;
+                            Exec++;
+                            worked = true;
+                            //}
+                            break;
+                        }
+                }
+
+            if (lhProcesses[0].All(x => x.work == false || x.cpuBurst <= 0))
+                done_0 = true;
+
+            if (lhProcesses[1] != null)
+            {
+                if (lhProcesses[1].All(x => x.work == false || x.cpuBurst <= 0))
+                    done_1 = true;
+            }
+            else
+                done_1 = true;
+
+            tact++;
+
+            ProcessDataTable.AcceptChanges();
+            Process_DataGrid.Items.Refresh();
+
+            TextBlock_Avg_Exec_Time.Text = (Math.Round(Exec / (double)processList.Count, 3)).ToString();
+            TextBlock_Avg_Waiting_Time.Text = (Math.Round(Waiting / (double)processList.Count, 3)).ToString();
+        }
+
         private void Refresh_ProcessGrid()
         {
-            Process_DataGrid.Columns.Clear();
-
-            //ProcessDataTable.Columns.Add(new DataColumn("PID", null, "id"));
-            //ProcessDataTable.Columns.Add(new DataColumn("Время.\nиспольнения", null, "cpuBurst"));
-            ProcessDataTable.Columns.Add(new DataColumn("PID", typeof(int)));
-            ProcessDataTable.Columns.Add(new DataColumn("Время.\nисполнения", typeof(int)));
-            ProcessDataTable.Columns.Add(new DataColumn("Время.\nпоявления", typeof(int)));
-            ProcessDataTable.Columns.Add(new DataColumn("Очередь", typeof(int)));
-            ProcessDataTable.Columns.Add(new DataColumn("Приоритет", typeof(int)));
-
-            //for (int i = 0; i < 46; i++)
-            //{
-            //    ProcessDataTable.Columns.Add((i + 1).ToString());
-            //    //DataGridTextColumn num = new DataGridTextColumn();
-            //    //num.Header = i + 1;
-            //    //num.Binding = new Binding((i + 1).ToString());
-            //    //Process_DataGrid.Columns.Add(num);
-            //}
-
+            ProcessDataTable.Reset();
+            //Process_DataGrid.Columns.Clear();
             Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
 
-            //Process process = new Process();
-            //process.StartInfo.FileName = "zxc.exe";
-            //process.StartInfo.Arguments = "-n";
-            //process.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
-            //process.Start();
-            //process.WaitForExit();// Waits here for the process to exit.
+            processList = new List<nProcess>();
 
-
-
-            //var _ds = new DataSet("Test");
-
-            //employeeDataTable = _ds.Tables.Add("DT");
-            //for (int i = 0; i < 10; i++)//create columns
-            //{
-            //    employeeDataTable.Columns.Add(i.ToString());
-            //}
-
-            //for (int i = 0; i < 50; i++)//fill data to rows
-            //{
-            //    var theRow = employeeDataTable.NewRow();
-            //    for (int j = 0; j < 10; j++)
-            //    {
-            //        if (j % 2 == 0)
-            //            theRow[j] = "a";
-            //        else
-            //            theRow[j] = "b";
-            //    }
-            //    employeeDataTable.Rows.Add(theRow);
-            //}
-            //Process_DataGrid.ItemsSource = employeeDataTable.AsDataView();
-
-            /*
-            DataGridTextColumn id = new DataGridTextColumn();
-            id.Header = "PID";
-            id.Binding = new Binding("id");
-            id.MinWidth = 65;
-            Process_DataGrid.Columns.Add(id);
-
-            DataGridTextColumn burstTime = new DataGridTextColumn();
-            burstTime.Header = "Время.\nиспольнения";
-            burstTime.Binding = new Binding("cpuBurst");
-            burstTime.MinWidth = 50;
-            Process_DataGrid.Columns.Add(burstTime);
-
-            DataGridTextColumn createTime = new DataGridTextColumn();
-            createTime.Header = "Время.\nпоявления";
-            createTime.Binding = new Binding("cpuBurst");
-            createTime.MinWidth = 50;
-            Process_DataGrid.Columns.Add(createTime);
-
-            DataGridTextColumn queue = new DataGridTextColumn();
-            queue.Header = "Очередь";
-            queue.Binding = new Binding("queue");
-            queue.MinWidth = 50;
-            Process_DataGrid.Columns.Add(queue);
-
-            DataGridTextColumn priority = new DataGridTextColumn();
-            priority.Header = "Приоритет";
-            priority.Binding = new Binding("priority");
-            priority.MinWidth = 50;
-            Process_DataGrid.Columns.Add(priority);
-
-            for (int i = 0; i < 50; i++)
-            {
-                DataGridTextColumn num = new DataGridTextColumn();
-                num.Header = i + 1;
-                num.Binding = new Binding((i + 1).ToString());
-                Process_DataGrid.Columns.Add(num);
-            }
-            */
-
-
-            //List<nProcess> processes1 = new List<nProcess>();
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    processes1.Add(new nProcess() { ProcessData = "12345", AddressSpace = "78564" });
-            //}
-            //Process_DataGrid.Items.Add(processes1[0]);
-
-            //ProcessStartInfo procInfo = new ProcessStartInfo();
-            //// исполняемый файл программы - браузер хром
-            //procInfo.FileName = @"C:\Program Files\Google\Chrome\Application\chrome";
-            //// аргументы запуска - адрес интернет-ресурса
-            //procInfo.Arguments = "https://metanit.com";
-            //Process.Start(procInfo);
-
-            //var processes = Process.GetProcessesByName("Idle");
-            //foreach (Process process in processes)
-            //    Process_DataGrid.Items.Add(new nProcess() { ProcessData = process.ProcessName, AddressSpace = process.Id });
-
-
-            //Process_DataGrid.ItemsSource = processes;
-            //Memory_Process_DataGrid.Items.Clear();
-            //Disk_Sector_DataGrid.Items.Clear();
-            //Disk_Map_DataGrid.Items.Clear();
-            //Disk_Catalog_DataGrid.Items.Clear();
-            //Memory_Address_DataGrid.Items.Clear();
-            //Memory_Map_DataGrid.Items.Clear();
-            //Memory_Process_DataGrid.Items.Clear();
-            //Process_DataGrid.Items.Clear();
-        }
-        //void Process_DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
-        //{
-        //    e.Row.Header = (e.Row.GetIndex() + 1).ToString();
-        //}
-        //private void Reverse_IsEnabled()
-        //{
-        //    Start_Button.IsEnabled = !Start_Button.IsEnabled;
-        //    Process_control_algorithm_comboBox.IsEnabled = !Process_control_algorithm_comboBox.IsEnabled;
-        //    Memory_control_algorithm_comboBox.IsEnabled = !Memory_control_algorithm_comboBox.IsEnabled;
-        //    VSU_control_algorithm_comboBox.IsEnabled = !VSU_control_algorithm_comboBox.IsEnabled;
-        //    Stop_Button.IsEnabled = !Stop_Button.IsEnabled;
-        //    Create_Process_Button.IsEnabled = !Create_Process_Button.IsEnabled;
-        //    Delete_Process_Button.IsEnabled = !Delete_Process_Button.IsEnabled;
-        //    Empty_Comand_Button.IsEnabled = !Empty_Comand_Button.IsEnabled;
-        //    Write_Linear_Button.IsEnabled = !Write_Linear_Button.IsEnabled;
-        //    Read_Linear_Button.IsEnabled = !Read_Linear_Button.IsEnabled;
-        //    Write_Segment_Button.IsEnabled = !Write_Segment_Button.IsEnabled;
-        //    Read_Segment_Button.IsEnabled = !Read_Segment_Button.IsEnabled;
-        //    Write_Memory_Button.IsEnabled = !Write_Memory_Button.IsEnabled;
-        //    Read_Memory_Button.IsEnabled = !Read_Memory_Button.IsEnabled;
-        //    Linear_TextBox.IsEnabled = !Linear_TextBox.IsEnabled;
-        //    Segment_1_TextBox.IsEnabled = !Segment_1_TextBox.IsEnabled;
-        //    Segment_2_TextBox.IsEnabled = !Segment_2_TextBox.IsEnabled;
-        //    Value_TextBox.IsEnabled = !Value_TextBox.IsEnabled;
-        //    Physical_Address_TextBox.IsEnabled = !Physical_Address_TextBox.IsEnabled;
-        //    File_Name_TextBox.IsEnabled = !File_Name_TextBox.IsEnabled;
-        //    File_Offset_TextBox.IsEnabled = !File_Offset_TextBox.IsEnabled;
-        //    Number_Bytes_TextBox.IsEnabled = !Number_Bytes_TextBox.IsEnabled;
-        //    Address_Content_Button.IsEnabled = !Address_Content_Button.IsEnabled;
-        //    Address_Decrement_Button.IsEnabled = !Address_Decrement_Button.IsEnabled;
-        //    Address_Increment_Button.IsEnabled = !Address_Increment_Button.IsEnabled;
-        //    Address_TextBox.IsEnabled = !Address_TextBox.IsEnabled;
-        //    Sector_Content_Button.IsEnabled = !Sector_Content_Button.IsEnabled;
-        //    Sector_Decrement_Button.IsEnabled = !Sector_Decrement_Button.IsEnabled;
-        //    Sector_Increment_Button.IsEnabled = !Sector_Increment_Button.IsEnabled;
-        //    Sector_TextBox.IsEnabled = !Sector_TextBox.IsEnabled;
-        //    Edit_File_Button.IsEnabled = !Edit_File_Button.IsEnabled;
-        //    Read_File_Button.IsEnabled = !Read_File_Button.IsEnabled;
-        //    Delete_File_Button.IsEnabled = !Delete_File_Button.IsEnabled;
-        //    Create_File_Button.IsEnabled = !Create_File_Button.IsEnabled;
-        //    Started = !Started;
-        //}
-
-        private void Sector_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Sector_TextBox.Text = string.Join("", Sector_TextBox.Text.Where(c => char.IsDigit(c)));
+            ProcessDataTable.Columns.Add(new DataColumn("PID", typeof(int)));
+            ProcessDataTable.Columns.Add(new DataColumn("Исполнения", typeof(int)));
+            ProcessDataTable.Columns.Add(new DataColumn("Появления", typeof(int)));
+            ProcessDataTable.Columns.Add(new DataColumn("Очередь", typeof(int)));
         }
 
         private void Sector_Increment_Button_Click(object sender, RoutedEventArgs e)
@@ -280,11 +255,6 @@ namespace Kyrsovoy_2_OS
 
         }
 
-        private void Address_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Address_TextBox.Text = string.Join("", Address_TextBox.Text.Where(c => char.IsDigit(c)));
-        }
-
         private void Address_Increment_Button_Click(object sender, RoutedEventArgs e)
         {
             string str = string.Join("", Address_TextBox.Text.Where(c => char.IsDigit(c)));
@@ -316,78 +286,108 @@ namespace Kyrsovoy_2_OS
 
         }
 
-        //private void ADD_LOG(string message)
-        //{
-        //    if (Log_ListBox != null)
-        //    {
-        //        //DLL.AddLog(message.ToCharArray(), message.Length);
-        //        Log_ListBox.Items.Add(message);
-        //        Log_ListBox.ScrollIntoView(Log_ListBox.Items[Log_ListBox.Items.Count - 1]);
-        //    }
-        //}
-
-        private void Process_control_algorithm_comboBox_DropDownClosed(object sender, EventArgs e)
+        private void Del_Column_Process_DataGrid()
         {
-            if (ComboBox_Priority.SelectedIndex == -1) Selected_Process_control_algorithm = false;
-            else Selected_Process_control_algorithm = true;
-            if (Selected_Process_control_algorithm && Selected_Memory_control_algorithm && Selected_VSU_control_algorithm)
-                Button_Start_Processes.IsEnabled = true;
-            else Button_Start_Processes.IsEnabled = false;
+            if (ProcessDataTable.Columns.Count > 3)
+            {
+                int dt_count = Process_DataGrid.Columns.Count - 1;
+                for (int i = dt_count; i >= 4; i--)
+                {
+                    Process_DataGrid.Columns.Remove(Process_DataGrid.Columns[i]);
+                }
+                int dg_count = ProcessDataTable.Columns.Count - 1;
+                for (int i = dg_count; i >= 4; i--)
+                {
+                    ProcessDataTable.Columns.Remove(ProcessDataTable.Columns[i]);
+                }
+                processList.ForEach(x =>
+                {
+                    x.cpuBurst = x.defCpuBurst;
+                    x.work = true;
+                });
+            }
         }
 
         private void Button_Start_Processes_Click(object sender, RoutedEventArgs e)
         {
-            var selectedCell = Process_DataGrid.Items[1];
-            DataRowView? drv = (DataRowView)Process_DataGrid.Items[1];
-            for (int i = 4; i < 20; i++)
-                drv[i] = "G";
-            //var cellContent = selectedCell.Column.GetCellContent(selectedCell.Item);
+            Del_Column_Process_DataGrid();
 
-            MessageBox.Show("" + ((nProcess)Process_DataGrid.Items[1]).id);
+            if (ProcessDataTable.Rows.Count <= 0)
+            {
+                MessageBox.Show("Сначала добавьте хотябы один процесс", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+
+            processList = processList.OrderBy(x => x.queue).ToList();
+
+            lhProcesses = processList // [0] - lower [1] - high
+                .GroupBy(x => x.queue)
+                .Select(x => x.ToList())
+                .ToList();
+
+            lhProcesses = lhProcesses.Select(x => x.OrderBy(x => x.createTime).ToList()).ToList();
+
+            if (lhProcesses.Count < 2)
+            {
+                MessageBox.Show("Добавьте хотябы один процесс другой очереди", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            tact = 0;
+            done_0 = false;
+            done_1 = false;
+            Exec = 0;
+            Waiting = 0;
+
+            timer.Start();
         }
 
         private void Button_Stop_Processes_Click(object sender, RoutedEventArgs e)
         {
-
+            tact = 0;
+            done_0 = false;
+            done_1 = false;
+            Exec = 0;
+            Waiting = 0;
+            timer.Stop();
         }
 
         private void Button_Clear_Processes_Click(object sender, RoutedEventArgs e)
         {
-            ProcessDataTable.Rows.Clear();
-            Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
+            Del_Column_Process_DataGrid();
+
+            foreach (DataRow row in ProcessDataTable.Rows)
+            {
+                _ = processList.Remove(processList.Single(x => x.id.ToString() == row["PID"].ToString()));
+                ProcessDataTable.Rows.Remove(row);
+                break;
+            }
+            ProcessDataTable.AcceptChanges();
         }
 
-        private void TextBox_Priority_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox_Priority.Text = string.Join("", TextBox_Priority.Text.Where(c => char.IsDigit(c)));
-            if (int.TryParse(TextBox_Priority.Text, out _))
-                if (int.Parse(TextBox_Priority.Text) > 36)
-                {
-                    MessageBox.Show("Максимальное значение приоритета 36", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    TextBox_Priority.Text = "36";
-                }
-        }
+        //private void TextBox_Priority_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    TextBox_Priority.Text = string.Join("", TextBox_Priority.Text.Where(c => char.IsDigit(c)));
+        //    if (int.TryParse(TextBox_Priority.Text, out _))
+        //        if (int.Parse(TextBox_Priority.Text) > 36)
+        //        {
+        //            MessageBox.Show("Максимальное значение приоритета 36", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            TextBox_Priority.Text = "36";
+        //        }
+        //}
 
-        private void TextBox_Exec_Time_TextChanged(object sender, TextChangedEventArgs e)
+        private void TextBox_INT_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TextBox_Exec_Time.Text = string.Join("", TextBox_Exec_Time.Text.Where(c => char.IsDigit(c)));
-        }
-
-        private void TextBox_PID_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox_PID.Text = string.Join("", TextBox_PID.Text.Where(c => char.IsDigit(c)));
+            ((TextBox)e.Source).Text = string.Join("", ((TextBox)e.Source).Text.Where(c => char.IsDigit(c)));
         }
 
         private void Button_Create_Processes_Click(object sender, RoutedEventArgs e)
         {
+            Del_Column_Process_DataGrid();
+
             if (ComboBox_Priority.SelectedIndex == -1)
             {
                 MessageBox.Show("Выбрирете очередь", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            if (string.IsNullOrEmpty(TextBox_Priority.Text))
-            {
-                MessageBox.Show("Введите приоритет процеса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             if (string.IsNullOrEmpty(TextBox_Exec_Time.Text))
@@ -395,7 +395,12 @@ namespace Kyrsovoy_2_OS
                 MessageBox.Show("Введите время выполнения процеса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            nProcess process = new nProcess(int.Parse(TextBox_Exec_Time.Text), ComboBox_Priority.SelectedIndex, int.Parse(TextBox_Priority.Text), 5);
+            if (string.IsNullOrEmpty(TextBox_Waiting_Time.Text))
+            {
+                MessageBox.Show("Введите время появления процеса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            nProcess process = new nProcess(int.Parse(TextBox_Exec_Time.Text), ComboBox_Priority.SelectedIndex, int.Parse(TextBox_Waiting_Time.Text));
             processList.Add(process);
             ProcessDataTable.Rows.Add(process.getDataRow(ProcessDataTable));
             Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
@@ -403,7 +408,39 @@ namespace Kyrsovoy_2_OS
 
         private void Button_Delete_Processes_Click(object sender, RoutedEventArgs e)
         {
+            Del_Column_Process_DataGrid();
 
+            if (string.IsNullOrEmpty(TextBox_PID.Text))
+            {
+                MessageBox.Show("Введите PID (ID процесса)", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (ProcessDataTable.Rows.Count <= 0)
+            {
+                MessageBox.Show("Сначала добавьте хотябы один процесс", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            foreach (DataRow row in ProcessDataTable.Rows)
+            {
+                if (row["PID"].ToString() == TextBox_PID.Text.ToString())
+                {
+                    ProcessDataTable.Rows.Remove(row);
+                    processList.Remove(processList.Single(x => x.id.ToString() == TextBox_PID.Text));
+                    break;
+                }
+            }
+            ProcessDataTable.AcceptChanges();
+        }
+
+        private void Process_DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            Del_Column_Process_DataGrid();
+
+            if (Process_DataGrid.SelectedIndex != -1)
+            {
+                DataRowView dataRowView = (DataRowView)Process_DataGrid.SelectedItem;
+                TextBox_PID.Text = dataRowView["PID"].ToString();
+            }
         }
     }
 }
