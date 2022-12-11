@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow"
         MinHeight="560"
-        MinWidth="1100"
+        MinWidth="1115"
         Height="560"
         Width="1115">
     <Grid>
@@ -78,10 +78,6 @@
             </TabItem>
             <TabItem Header="Память">
                 <Grid x:Name="Memory_Grid" Background="#FFE5E5E5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="22"/>
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                         <ColumnDefinition Width="4*"></ColumnDefinition>
@@ -108,21 +104,12 @@
                             </Grid.ColumnDefinitions>
                             <Label Content="Адрес" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <TextBox x:Name="Address_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextChanged="TextBox_INT_TextChanged" />
-                            <Button x:Name="Address_Increment_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="5" Grid.Column="2" Click="Address_Increment_Button_Click" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="26"/>
-                            <Button x:Name="Address_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" HorizontalAlignment="Left" Width="25" Click="Address_Decrement_Button_Click"/>
+                            <Button x:Name="Address_Increment_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="5" Grid.Column="2" HorizontalAlignment="Center" Click="Address_Increment_Button_Click"/>
+                            <Button x:Name="Address_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" HorizontalAlignment="Center" Click="Address_Decrement_Button_Click"/>
                             <Button x:Name="Address_Content_Button" IsEnabled="false" Content="Содержимое" Grid.Column="5" Click="Address_Content_Button_Click"/>
                         </Grid>
                         <DataGrid x:Name="Memory_Address_DataGrid" Grid.Row="3"></DataGrid>
                     </Grid>
-                    <StatusBar x:Name="Memory_StatusBar" Grid.Row="2" Grid.ColumnSpan="2">
-                        <StatusBarItem Content="Нет текущей команды"/>
-                        <Separator/>
-                        <StatusBarItem Content="Результат: "/>
-                        <Separator/>
-                        <StatusBarItem Content="Операций ввода/вывода: 0"/>
-                        <Separator/>
-                        <StatusBarItem Content="Текущая команда: 0"/>
-                    </StatusBar>
                 </Grid>
             </TabItem>
             <TabItem Header="Диск">
