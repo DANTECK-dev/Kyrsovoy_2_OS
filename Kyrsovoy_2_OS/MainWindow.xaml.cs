@@ -49,6 +49,8 @@ namespace Kyrsovoy_2_OS
 
         List<nProcess> processList = new List<nProcess>();
 
+        List<nFile> fileList = new List<nFile>();
+
         DispatcherTimer timer = new DispatcherTimer();
 
         public MainWindow()
@@ -79,9 +81,11 @@ namespace Kyrsovoy_2_OS
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
+            TextBox_Quantum_Time.IsEnabled = false;
             if (done_0 && done_1)
             {
                 timer.Stop();
+                TextBox_Quantum_Time.IsEnabled = true;
                 return;
             }
 
@@ -220,7 +224,6 @@ namespace Kyrsovoy_2_OS
             Refresh_MemoryProcessGrid();
             Refresh_MemoryMapGrid();
             Refresh_DiskCatalogGrid();
-            Refresh_DiskMapGrid();
             Refresh_DiskSectorGrid();
         }
         private void Refresh_ProcessGrid()
@@ -255,70 +258,14 @@ namespace Kyrsovoy_2_OS
         {
             DiskCatalogDataTable.Reset();
             Disk_Catalog_DataGrid.ItemsSource = DiskCatalogDataTable.DefaultView;
-            DiskCatalogDataTable.Columns.Add(new DataColumn("", typeof(int)));
-        }
-        private void Refresh_DiskMapGrid()
-        {
-            DiskMapDataTable.Reset();
-            Disk_Map_DataGrid.ItemsSource = DiskMapDataTable.DefaultView;
-            DiskMapDataTable.Columns.Add(new DataColumn("", typeof(int)));
+            DiskCatalogDataTable.Columns.Add(new DataColumn("Имя", typeof(string)));
+            DiskCatalogDataTable.Columns.Add(new DataColumn("Размер", typeof(int)));
         }
         private void Refresh_DiskSectorGrid()
         {
             DiskSectorDataTable.Reset();
             Disk_Sector_DataGrid.ItemsSource = DiskSectorDataTable.DefaultView;
-            DiskSectorDataTable.Columns.Add(new DataColumn("", typeof(int)));
-        }
-
-        private void Sector_Increment_Button_Click(object sender, RoutedEventArgs e)
-        {
-            string str = string.Join("", Sector_TextBox.Text.Where(c => char.IsDigit(c)));
-            if (int.TryParse(str, out _))
-            {
-                Sector_TextBox.Text = (int.Parse(str) + 1).ToString();
-            }
-            else
-            {
-                MessageBox.Show("В поле сектор должно быть число", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void Sector_Decrement_Button_Click(object sender, RoutedEventArgs e)
-        {
-            string str = string.Join("", Sector_TextBox.Text.Where(c => char.IsDigit(c)));
-            if (int.TryParse(str, out _))
-            {
-                Sector_TextBox.Text = (int.Parse(str) - 1).ToString();
-            }
-            else
-            {
-                MessageBox.Show("В поле сектор должно быть число", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void Sector_Content_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Create_File_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Delete_File_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Read_File_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Edit_File_Button_Click(object sender, RoutedEventArgs e)
-        {
-
+            DiskSectorDataTable.Columns.Add(new DataColumn("Имя", typeof(string)));
         }
 
         private void Del_Column_Process_DataGrid()
@@ -349,10 +296,15 @@ namespace Kyrsovoy_2_OS
 
             if (ProcessDataTable.Rows.Count <= 0)
             {
-                MessageBox.Show("Сначала добавьте хотябы один процесс", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Сначала добавьте хотябы один процес", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
+            if (string.IsNullOrEmpty(TextBox_Quantum_Time.Text))
+            {
+                MessageBox.Show("Введите квант времени выполнения процеса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             processList = processList.OrderBy(x => x.queue).ToList();
 
@@ -385,18 +337,39 @@ namespace Kyrsovoy_2_OS
             Exec = 0;
             Waiting = 0;
             timer.Stop();
+            TextBox_Quantum_Time.IsEnabled = true;
         }
 
         private void Button_Clear_Processes_Click(object sender, RoutedEventArgs e)
         {
             Del_Column_Process_DataGrid();
 
+            if (ProcessDataTable.Rows.Count <= 0)
+            {
+                MessageBox.Show("Сначала добавьте хотябы один процесс", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            foreach (DataRow row in MemoryProcessDataTable.Rows)
+            {
+                MemoryProcessDataTable.Rows.Remove(row);
+                break;
+            }
+
             foreach (DataRow row in ProcessDataTable.Rows)
             {
-                _ = processList.Remove(processList.Single(x => x.id.ToString() == row["PID"].ToString()));
+                var del_proc = processList.Single(x => x.id.ToString() == row["PID"].ToString());
+                Vals.Total_Rem_Pages += del_proc.processMap.Count_Page;
+                Vals.Total_Rem_Virt_Pages += del_proc.processMap.Count_Virt_Page;
+                _ = processList.Remove(del_proc);
                 ProcessDataTable.Rows.Remove(row);
                 break;
             }
+            Label_Page_Size.Content = Vals.LEN_OF_PAGE;
+            Label_Total_Count_Page.Content = Vals.Total_Pages;
+            Label_Total_Count_Virt_Page.Content = Vals.Total_Virt_Pages;
+            Label_Rem_Total_Count_Page.Content = Vals.Total_Rem_Pages;
+            Label_Rem_Total_Count_Virt_Page.Content = Vals.Total_Rem_Virt_Pages;
             ProcessDataTable.AcceptChanges();
         }
 
@@ -458,6 +431,12 @@ namespace Kyrsovoy_2_OS
         {
             Del_Column_Process_DataGrid();
 
+            if (!processList.Any(x => x.id.ToString() == TextBox_PID.Text))
+            {
+                MessageBox.Show("Процесс не найден", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (string.IsNullOrEmpty(TextBox_PID.Text))
             {
                 MessageBox.Show("Введите PID (ID процесса)", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -468,25 +447,41 @@ namespace Kyrsovoy_2_OS
                 MessageBox.Show("Сначала добавьте хотябы один процесс", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            foreach (DataRow row in MemoryProcessDataTable.Rows)
+            {
+                if (row["PID"].ToString() == TextBox_PID.Text.ToString())
+                {
+                    MemoryProcessDataTable.Rows.Remove(row);
+                    break;
+                }
+            }
             foreach (DataRow row in ProcessDataTable.Rows)
             {
                 if (row["PID"].ToString() == TextBox_PID.Text.ToString())
                 {
                     ProcessDataTable.Rows.Remove(row);
-                    processList.Remove(processList.Single(x => x.id.ToString() == TextBox_PID.Text));
                     break;
                 }
             }
+            var del_proc = processList.Single(x => x.id.ToString() == TextBox_PID.Text);
+            Vals.Total_Rem_Pages += del_proc.processMap.Count_Page;
+            Vals.Total_Rem_Virt_Pages += del_proc.processMap.Count_Virt_Page;
+            _ = processList.Remove(del_proc);
+            //processList.Remove(del_proc);
             ProcessDataTable.AcceptChanges();
         }
         void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             e.Row.Header = (e.Row.GetIndex()).ToString();
         }
+        void Disk_Sector_DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = "Кластер " + e.Row.GetIndex();
+        }
 
         private void Process_DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            Del_Column_Process_DataGrid();
+            //Del_Column_Process_DataGrid();
 
             if (Process_DataGrid.SelectedIndex != -1)
             {
@@ -516,7 +511,7 @@ namespace Kyrsovoy_2_OS
 
             var dataRows = process.getMemoryMapProcessDataRow(MemoryMapProcessDataTable);
 
-            foreach(DataRow row in dataRows)
+            foreach (DataRow row in dataRows)
                 MemoryMapProcessDataTable.Rows.Add(row);
 
         }
@@ -524,6 +519,174 @@ namespace Kyrsovoy_2_OS
         private void Memory_Map_DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             e.Row.Header = (e.Row.GetIndex() % 4 * 256).ToString();
+        }
+
+
+
+        private void Create_File_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TextBox_File_Size_RAM.Text))
+            {
+                MessageBox.Show("Введите объём оперативной памяти", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (int.Parse(TextBox_File_Size_RAM.Text) <= (Vals.LEN_OF_CLUSTER / 1024))
+            {
+                MessageBox.Show("Введите объём больше объёма одного кластера", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            //if (int.Parse(TextBox_File_Size_RAM.Text) > 1000)
+            //{
+            //    MessageBox.Show("Введите объём меньше 1000, т.к. такая нагрузка может приветсти к внезапному прекращению работы программы", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
+
+            if (string.IsNullOrEmpty(TextBox_File_Name.Text))
+            {
+                MessageBox.Show("Введите название файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(TextBox_File_Size.Text))
+            {
+                MessageBox.Show("Введите размер файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if ((int.Parse(TextBox_File_Size.Text) / 1024) > int.Parse(TextBox_File_Size_RAM.Text))
+            {
+                MessageBox.Show("Размер файла не должен привышать объём ОЗУ", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (int.Parse(TextBox_File_Size.Text) <= 0)
+            {
+                MessageBox.Show("Слишком маленький размер файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (fileList.Any(x => x.name == TextBox_File_Name.Text))
+            {
+                MessageBox.Show("Такой файл уже существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            nFile new_file = new nFile(TextBox_File_Name.Text, int.Parse(TextBox_File_Size.Text));
+
+            long new_file_clusters = 0; 
+            if (new_file.size % Vals.LEN_OF_CLUSTER == 0)
+                new_file_clusters = new_file.size / Vals.LEN_OF_CLUSTER;
+            else new_file_clusters = new_file.size / Vals.LEN_OF_CLUSTER + 1;
+
+            long busy_Clusters = 0;
+            long free_Clusters = int.Parse(TextBox_File_Size_RAM.Text) * 2; ;
+
+            foreach (var file in fileList)
+            {
+                long clusters = 0;
+
+                if (file.size % Vals.LEN_OF_CLUSTER == 0)
+                    clusters = file.size / Vals.LEN_OF_CLUSTER;
+                else clusters = file.size / Vals.LEN_OF_CLUSTER + 1;
+
+                free_Clusters -= clusters;
+                busy_Clusters += clusters;
+            }
+
+            if (free_Clusters - new_file_clusters < 0)
+            {
+                MessageBox.Show("Слишком большой размер файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (TextBox_File_Size_RAM.IsEnabled)
+            {
+                TextBox_File_Size_RAM.IsEnabled = false;
+                Label_Count_Cluster.Content = int.Parse(TextBox_File_Size_RAM.Text) * 2;
+            }
+
+            fileList.Add(new_file);
+            DiskCatalogDataTable.Rows.Add(new_file.getDiskCatalogDataRow(DiskCatalogDataTable));
+
+            Update_Disk_Sector();
+        }
+
+        private void Delete_File_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TextBox_File_Name.Text))
+            {
+                MessageBox.Show("Введите название файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!fileList.Any(x => x.name.ToString() == TextBox_File_Name.Text))
+            {
+                MessageBox.Show("Файл не найден", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            foreach (DataRow row in DiskCatalogDataTable.Rows)
+            {
+                if (row["Имя"].ToString() == TextBox_File_Name.Text.ToString())
+                {
+                    DiskCatalogDataTable.Rows.Remove(row);
+                    break;
+                }
+            }
+
+            nFile file = fileList.Single(x => x.name.ToString() == TextBox_File_Name.Text);
+            fileList.Remove(file);
+
+            if(fileList.Count == 0) TextBox_File_Size_RAM.IsEnabled = true;
+
+            Update_Disk_Sector();
+        }
+
+        private void Update_Disk_Sector()
+        {
+            DiskSectorDataTable.Rows.Clear();
+
+            if (fileList.Count == 0)
+            {
+                Label_Count_Cluster.Content = "-";
+                Label_Count_Busy_Cluster.Content ="-";
+                Label_Count_Free_Cluster.Content ="-";
+                return;
+            }
+
+            long busy_Clusters = 0, free_Clusters = int.Parse(Label_Count_Cluster.Content.ToString());
+
+            foreach (var file in fileList)
+            {
+                long clusters = 0;
+
+                if (file.size % Vals.LEN_OF_CLUSTER == 0)
+                    clusters = file.size / Vals.LEN_OF_CLUSTER;
+                else clusters = file.size / Vals.LEN_OF_CLUSTER + 1;
+
+                free_Clusters-=clusters;
+                busy_Clusters+=clusters;
+
+                for (int i = 0; i < clusters; i++)
+                {
+                    DiskSectorDataTable.Rows.Add(file.getDiskSectorDataRow(DiskSectorDataTable));
+                }
+            }
+            for(int i = 0; i < free_Clusters; i++)
+            {
+                DataRow dataRow = DiskSectorDataTable.NewRow();
+                dataRow["Имя"] = "Свободный";
+                DiskSectorDataTable.Rows.Add(dataRow);
+            }
+            Label_Count_Busy_Cluster.Content = busy_Clusters;
+            Label_Count_Free_Cluster.Content = free_Clusters;
+        }
+
+        private void Disk_Catalog_DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            if (Disk_Catalog_DataGrid.SelectedIndex == -1) return;
+
+            DataRowView dataRowView = (DataRowView)Disk_Catalog_DataGrid.SelectedItem;
+            nFile file = fileList.Single(x => x.name.ToString() == dataRowView["Имя"].ToString());
+            TextBox_File_Name.Text = file.name;
+            TextBox_File_Size.Text = file.size.ToString();
         }
     }
 }

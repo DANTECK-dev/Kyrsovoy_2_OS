@@ -157,11 +157,11 @@ CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" Ena
                 <Grid x:Name="Disk_Grid" Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
-                        <RowDefinition Height="22"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"></ColumnDefinition>
-                        <ColumnDefinition Width="4*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Margin="5">
                         <Grid.RowDefinitions>
@@ -171,82 +171,88 @@ CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" Ena
                         <Label Content="Каталог" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                         <DataGrid x:Name="Disk_Catalog_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" 
 CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
- Grid.Row="1"/>
+ Grid.Row="1" SelectedCellsChanged="Disk_Catalog_DataGrid_SelectedCellsChanged" LoadingRow="DataGrid_LoadingRow"/>
                     </Grid>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="10*"></RowDefinition>
-                            <RowDefinition Height="32"></RowDefinition>
+                            <RowDefinition Height="130"></RowDefinition>
                             <RowDefinition Height="10*"></RowDefinition>
                         </Grid.RowDefinitions>
+
                         <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="3*"/>
-                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="2.5*"/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
                                 </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
+                                <Grid Grid.Row="0" Grid.RowSpan="4" Grid.Column="0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
                                         <ColumnDefinition/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
-                                    <Label Content="Имя файла" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    <Button x:Name="Create_File_Button" IsEnabled="false" Content="Создать" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="70"  MinHeight="20" Click="Create_File_Button_Click"/>
-                                    <Button x:Name="Delete_File_Button" IsEnabled="false" Content="Удалить" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="70"  MinHeight="20" Click="Delete_File_Button_Click"/>
-                                    <Button x:Name="Read_File_Button" IsEnabled="false" Content="Прочитать" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="70"  MinHeight="20" Click="Read_File_Button_Click"/>
-                                    <Button x:Name="Edit_File_Button" IsEnabled="false" Content="Изменить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="70"  MinHeight="20" Click="Edit_File_Button_Click"/>
+                                    <Label Content="Общий размер ОЗУ(МБайт):" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0"/>
+                                    <TextBox x:Name="TextBox_File_Size_RAM" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="1" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="200" MinHeight="30" TextChanged="TextBox_INT_TextChanged" TextAlignment="Center"/>
+                                    <Button x:Name="Create_File_Button" IsEnabled="True" Content="Создать" Grid.Column="0"  Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="120"  MinHeight="25" Click="Create_File_Button_Click"/>
+                                    <Button x:Name="Delete_File_Button" IsEnabled="True" Content="Удалить" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="120"  MinHeight="25" Click="Delete_File_Button_Click"/>
+                                    <Label Content="Имя файла:"  Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                    <TextBox x:Name="TextBox_File_Name" Grid.Column="1"  Grid.Row="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="200" MinHeight="30" TextAlignment="Center"/>
+                                    <Label Content="Размер файла(Байт):"  Grid.Column="0" Grid.Row="3" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                    <TextBox x:Name="TextBox_File_Size" Grid.Column="1"  Grid.Row="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="200" MinHeight="30" TextChanged="TextBox_INT_TextChanged" TextAlignment="Center"/>
+
                                 </Grid>
-                                <TextBox Grid.Row="1" Margin="5"/>
-                            </Grid>
-                            <Grid Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="25"/>
-                                    <RowDefinition Height="7.5*"/>
-                                </Grid.RowDefinitions>
-                                <Label Content="Карта диска" Grid.Row="0"/>
-                                <DataGrid x:Name="Disk_Map_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" 
-CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
- Grid.Row="1"></DataGrid>
+
                             </Grid>
                         </Grid>
-                        <Grid Grid.Row="1" Margin="3">
+                        <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="5*"/>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="5*"/>
-                                <ColumnDefinition Width="10*"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Label Content="Сектор" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBox x:Name="Sector_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged" />
-                            <Button x:Name="Sector_Increment_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="5" Grid.Column="2" Click="Sector_Increment_Button_Click"/>
-                            <Button x:Name="Sector_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" Click="Sector_Decrement_Button_Click"/>
-                            <Button x:Name="Sector_Content_Button" IsEnabled="false" Content="Содержимое" Grid.Column="5" Click="Sector_Content_Button_Click"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Размер кластера(Байт): "                Grid.Column="0" Grid.Row="1" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Label Content="Количество кластеров: "                 Grid.Column="0" Grid.Row="2" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Label Content="Количество занятых кластеров: "         Grid.Column="0" Grid.Row="3" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Label Content="Количество свободных кластеров: "       Grid.Column="0" Grid.Row="4" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
+                            <Label x:Name="Label_Size_Cluster"          Content="512"  Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Label x:Name="Label_Count_Cluster"         Content="-"  Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Label x:Name="Label_Count_Busy_Cluster"    Content="-"  Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Label x:Name="Label_Count_Free_Cluster"    Content="-"  Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
                         </Grid>
-                        <DataGrid x:Name="Disk_Sector_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" 
-CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
- Grid.Row="2" Margin="5"></DataGrid>
                     </Grid>
-                    <StatusBar x:Name="Disk_StatusBar" Grid.Row="2" Grid.ColumnSpan="2">
-                        <StatusBarItem Content="Нет текущей команды"/>
-                        <Separator/>
-                        <StatusBarItem Content="Результат: "/>
-                        <Separator/>
-                        <StatusBarItem Content="Операций ввода/вывода: 0"/>
-                        <Separator/>
-                        <StatusBarItem Content="Текущая команда: 0"/>
-                    </StatusBar>
+                    <Label Content="Кластеры" Grid.Column="2" VerticalAlignment="Top" HorizontalContentAlignment="Left" Margin="5"/>
+                    <DataGrid x:Name="Disk_Sector_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25"
+CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
+Grid.Column="2" Margin="5,35,5,5" LoadingRow="DataGrid_LoadingRow">
+                        <DataGrid.RowHeaderStyle>
+                            <Style TargetType="{x:Type DataGridRowHeader}">
+                                <Setter Property="Width"
+                                     Value="150"/>
+                            </Style>
+                        </DataGrid.RowHeaderStyle>
+                    </DataGrid>
+
                 </Grid>
             </TabItem>
         </TabControl>
