@@ -3,22 +3,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Kyrsovoy_2_OS"
+        xmlns:local="clr-namespace:Kyrsovoy_2_OS" xmlns:System="clr-namespace:System;assembly=netstandard"
         mc:Ignorable="d"
         Title="MainWindow"
         MinHeight="560"
         MinWidth="1115"
         Height="560"
         Width="1115">
+    <Window.Resources>
+        <System:Int64 x:Key="Counter">0</System:Int64>
+    </Window.Resources>
     <Grid>
         <TabControl Height="auto">
             <TabItem Header="Процессы" Height="22" Margin="-2,0,-2,0" VerticalAlignment="Bottom">
                 <Grid x:Name="Process_Grid" Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="10"></RowDefinition>
                         <RowDefinition Height="100"></RowDefinition>
                         <RowDefinition Height="4*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
+                    <Grid Grid.Row="1">
                         <Grid.RowDefinitions>
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
@@ -35,7 +39,7 @@
                         <Button x:Name="Button_Start_Processes" IsEnabled="True" Content="Запустить систему" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Start_Processes_Click"/>
                         <Button x:Name="Button_Stop_Processes" IsEnabled="True" Grid.Row="1" Content="Остановить систему" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Stop_Processes_Click"/>
                         <Button x:Name="Button_Clear_Processes" IsEnabled="True" Grid.Row="2" Content="Очистить" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Clear_Processes_Click"/>
-                        <Label Content="Очередь" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
+                        <Label Content="Очередь" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
                         <Label Content="Время выполнения" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="110" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
                         <Label Content="PID" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="25" MinWidth="110" MinHeight="25"  FontSize="11"/>
 
@@ -45,16 +49,18 @@
                         <Label Content="Время появлния" Grid.Row="1" Grid.Column="3" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <TextBox x:Name="TextBox_Waiting_Time" Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="120" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
                         <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="0"/>
-                        <GroupBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"/>
+                        <GroupBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="1" Margin="0,-10,0,0" Header="Размер" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        <GroupBox Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="1" Margin="0,-10,0,0" Header="Очередь" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         <GroupBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="0"/>
                         <GroupBox Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3" Margin="0"/>
                         <GroupBox Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" Margin="0"/>
                         <GroupBox Header="Квант времени" Grid.Column="3" Grid.Row="0" Margin="0,-10,0,0"/>
                         <TextBox x:Name="TextBox_PID" Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="400" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
+                        <TextBox x:Name="TextBox_Size" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="100" MinHeight="23" TextAlignment="Center" TextChanged="TextBox_INT_TextChanged"/>
 
                         <Button x:Name="Button_Create_Processes" IsEnabled="True" Grid.Row="0" Grid.Column="4" Content="Создать процесс" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="auto" MinWidth="120" MinHeight="20" Click="Button_Create_Processes_Click"/>
                         <Button x:Name="Button_Delete_Processes" IsEnabled="True" Grid.Row="2" Grid.Column="4" Content="Удалить процесс" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="auto" Height="20" MinWidth="120" MinHeight="20" Click="Button_Delete_Processes_Click"/>
-                        
+
                         <Grid Grid.Column="5" Grid.Row="0" Grid.RowSpan="3">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
@@ -70,8 +76,9 @@
                             <TextBlock x:Name="TextBlock_Avg_Waiting_Time" Text="-" Grid.Row="1" FontSize="23"  Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
                         </Grid>
                     </Grid>
-                    <Grid Grid.Row="1">
-                        <DataGrid x:Name="Process_DataGrid" ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" Grid.Column="1" CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True" SelectedCellsChanged="Process_DataGrid_SelectedCellsChanged"/>
+
+                    <Grid Grid.Row="2">
+                        <DataGrid x:Name="Process_DataGrid" ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" Grid.Column="1" CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True" SelectedCellsChanged="Process_DataGrid_SelectedCellsChanged" LoadingRow="DataGrid_LoadingRow"/>
 
                     </Grid>
                 </Grid>
@@ -82,33 +89,66 @@
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                         <ColumnDefinition Width="4*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="Memory_Process_DataGrid" Grid.Column="0" Margin="5"/>
+                    <DataGrid x:Name="Memory_Process_DataGrid" Grid.Column="0" ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" 
+CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
+ SelectedCellsChanged="Memory_Process_DataGrid_SelectedCellsChanged" LoadingRow="DataGrid_LoadingRow"/>
                     <Grid Grid.Column="1" Margin="5" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="27"></RowDefinition>
                             <RowDefinition Height="10*"></RowDefinition>
-                            <RowDefinition Height="32"></RowDefinition>
                             <RowDefinition Height="10*"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Label Content="Карта памяти(1 ячейка - 16 байт)" Grid.Row="0"/>
-                        <DataGrid x:Name="Memory_Map_DataGrid" Grid.Row="1"></DataGrid>
-                        <Grid Grid.Row="2" Margin="3">
+                        <DataGrid x:Name="Memory_Map_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" 
+CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
+ Grid.Row="1" LoadingRow="Memory_Map_DataGrid_LoadingRow"></DataGrid>
+                        <Grid Grid.Row="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="5*"/>
+                                <ColumnDefinition Width="350"/>
                                 <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="5*"/>
-                                <ColumnDefinition Width="10*"/>
                             </Grid.ColumnDefinitions>
-                            <Label Content="Адрес" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBox x:Name="Address_TextBox" Grid.Column="1" Text="0" IsEnabled="false" TextAlignment="Center" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextChanged="TextBox_INT_TextChanged" />
-                            <Button x:Name="Address_Increment_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="5" Grid.Column="2" HorizontalAlignment="Center" Click="Address_Increment_Button_Click"/>
-                            <Button x:Name="Address_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" HorizontalAlignment="Center" Click="Address_Decrement_Button_Click"/>
-                            <Button x:Name="Address_Content_Button" IsEnabled="false" Content="Содержимое" Grid.Column="5" Click="Address_Content_Button_Click"/>
+                            <Label Content="PID: "                                                      Grid.Column="0" Margin="10,0,0,0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Размер процесса: "                                          Grid.Column="0" Margin="10,0,0,0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Количество удаленных страниц в оперативной памяти 0: "      Grid.Column="0" Margin="10,0,0,0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Занимает страниц в оперативной памяти: "                    Grid.Column="0" Margin="10,0,0,0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Занимает страниц в виртуальной памяти: "                    Grid.Column="0" Margin="10,0,0,0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Количество занятых страниц: "                               Grid.Column="0" Margin="10,0,0,0" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Свободно в последнем блоке: "                               Grid.Column="0" Margin="10,0,0,0" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+
+                            <Label Content="Размер страницы: "                                          Grid.Column="0" Margin="10,0,0,0" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Страниц в оперативной памяти: "                             Grid.Column="0" Margin="10,0,0,0" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Страниц в виртуальной памяти: "                             Grid.Column="0" Margin="10,0,0,0" Grid.Row="9" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Остаток свободных страниц в оперативной памяти: "           Grid.Column="0" Margin="10,0,0,0" Grid.Row="10" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label Content="Остаток свободных страниц в виртуальной памяти: "           Grid.Column="0" Margin="10,0,0,0" Grid.Row="11" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+
+                            <Label x:Name="Label_PID"                       Content="-" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Size"                      Content="-" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Count_Del_Page_in_RAM"     Content="-" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Page_in_RAM"               Content="-" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Page_in_Virt"              Content="-" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Count_Page"                Content="-" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Free_Last_Page"            Content="-" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+
+                            <Label x:Name="Label_Page_Size"                 Content="-" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Total_Count_Page"          Content="-" Grid.Column="1" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Total_Count_Virt_Page"     Content="-" Grid.Column="1" Grid.Row="9" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Rem_Total_Count_Page"      Content="-" Grid.Column="1" Grid.Row="10" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
+                            <Label x:Name="Label_Rem_Total_Count_Virt_Page" Content="-" Grid.Column="1" Grid.Row="11" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="241"/>
                         </Grid>
-                        <DataGrid x:Name="Memory_Address_DataGrid" Grid.Row="3"></DataGrid>
                     </Grid>
                 </Grid>
             </TabItem>
@@ -128,7 +168,9 @@
                             <RowDefinition Height="10*"/>
                         </Grid.RowDefinitions>
                         <Label Content="Каталог" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                        <DataGrid x:Name="Disk_Catalog_DataGrid" Grid.Row="1"/>
+                        <DataGrid x:Name="Disk_Catalog_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" 
+CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
+ Grid.Row="1"/>
                     </Grid>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
@@ -170,7 +212,9 @@
                                     <RowDefinition Height="7.5*"/>
                                 </Grid.RowDefinitions>
                                 <Label Content="Карта диска" Grid.Row="0"/>
-                                <DataGrid x:Name="Disk_Map_DataGrid" Grid.Row="1" Margin="5"></DataGrid>
+                                <DataGrid x:Name="Disk_Map_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" Margin="5" 
+CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
+ Grid.Row="1"></DataGrid>
                             </Grid>
                         </Grid>
                         <Grid Grid.Row="1" Margin="3">
@@ -189,7 +233,9 @@
                             <Button x:Name="Sector_Decrement_Button" IsEnabled="false" FontFamily="Marlett" FontSize="20" Content="6" Grid.Column="3" Click="Sector_Decrement_Button_Click"/>
                             <Button x:Name="Sector_Content_Button" IsEnabled="false" Content="Содержимое" Grid.Column="5" Click="Sector_Content_Button_Click"/>
                         </Grid>
-                        <DataGrid x:Name="Disk_Sector_DataGrid" Grid.Row="2" Margin="5"></DataGrid>
+                        <DataGrid x:Name="Disk_Sector_DataGrid"  ItemsSource="{Binding}" HeadersVisibility="All" RowHeaderWidth="25" 
+CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" EnableColumnVirtualization="True" AutomationProperties.IsRowHeader="True" AutomationProperties.IsColumnHeader="True" IsReadOnly="True"
+ Grid.Row="2" Margin="5"></DataGrid>
                     </Grid>
                     <StatusBar x:Name="Disk_StatusBar" Grid.Row="2" Grid.ColumnSpan="2">
                         <StatusBarItem Content="Нет текущей команды"/>

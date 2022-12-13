@@ -23,10 +23,19 @@ using System.Windows.Threading;
 namespace Kyrsovoy_2_OS
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Вариант 532
+    /// 
+    /// 5 - Многоуровневая очередь
+    /// 3 - Страничное распределение памяти (страница – 1024 байт)
+    /// 2 - Непрерывное размещение файлов (Кластер – 512 байт)
+    /// 
+    /// Автор умер от недосыпа
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
+
+
 
         DataTable ProcessDataTable = new DataTable();           //Process_DataGrid центр 1
         DataTable MemoryProcessDataTable = new DataTable();     //Memory_Process_DataGrid слева 2
@@ -51,7 +60,11 @@ namespace Kyrsovoy_2_OS
             timer.Interval = TimeSpan.FromSeconds(0.1);
             timer.Tick += Timer_Tick;
 
-            Refresh_ProcessGrid();
+            Vals.Total_Rem_Pages = Vals.RAM / Vals.LEN_OF_PAGE;
+            Vals.Total_Rem_Virt_Pages = Vals.VAM / Vals.LEN_OF_PAGE;
+            Vals.Total_Pages = Vals.Total_Rem_Pages; Vals.Total_Virt_Pages = Vals.Total_Rem_Virt_Pages;
+
+            Refresh_AllGrid();
         }
 
 
@@ -200,53 +213,61 @@ namespace Kyrsovoy_2_OS
         }
 
 
+        private void Refresh_AllGrid()
+        {
+            processList = new List<nProcess>();
+            Refresh_ProcessGrid();
+            Refresh_MemoryProcessGrid();
+            Refresh_MemoryMapGrid();
+            Refresh_DiskCatalogGrid();
+            Refresh_DiskMapGrid();
+            Refresh_DiskSectorGrid();
+        }
         private void Refresh_ProcessGrid()
         {
             ProcessDataTable.Reset();
-            MemoryProcessDataTable.Reset();
-            MemoryMapProcessDataTable.Reset();
-            MemoryAdreessDataTable.Reset();
-            DiskCatalogDataTable.Reset();
-            DiskMapDataTable.Reset();
-            DiskSectorDataTable.Reset();
-
-            //Process_DataGrid.Columns.Clear();
             Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
-            Memory_Process_DataGrid.ItemsSource = MemoryProcessDataTable.DefaultView;
-            Memory_Map_DataGrid.ItemsSource = MemoryMapProcessDataTable.DefaultView;
-            Memory_Address_DataGrid.ItemsSource = MemoryAdreessDataTable.DefaultView;
-            Disk_Catalog_DataGrid.ItemsSource = DiskCatalogDataTable.DefaultView;
-            Disk_Map_DataGrid.ItemsSource = DiskMapDataTable.DefaultView;
-            Disk_Sector_DataGrid.ItemsSource = DiskSectorDataTable.DefaultView;
-
-
-            processList = new List<nProcess>();
-
             ProcessDataTable.Columns.Add(new DataColumn("PID", typeof(int)));
             ProcessDataTable.Columns.Add(new DataColumn("Исполнения", typeof(int)));
             ProcessDataTable.Columns.Add(new DataColumn("Появления", typeof(int)));
             ProcessDataTable.Columns.Add(new DataColumn("Очередь", typeof(int)));
+        }
 
+        private void Refresh_MemoryProcessGrid()
+        {
+            MemoryProcessDataTable.Rows.Clear();
+            MemoryProcessDataTable.Columns.Clear();
+            MemoryProcessDataTable.Reset();
+            Memory_Process_DataGrid.ItemsSource = MemoryProcessDataTable.DefaultView;
             MemoryProcessDataTable.Columns.Add(new DataColumn("PID", typeof(int)));
             MemoryProcessDataTable.Columns.Add(new DataColumn("Color", typeof(SolidColorBrush)));
-
-
-            MemoryMapProcessDataTable.Columns.Add(new DataColumn("", typeof(int)));
-
-
-            MemoryAdreessDataTable.Columns.Add(new DataColumn("", typeof(int)));
-
-
+        }
+        private void Refresh_MemoryMapGrid()
+        {
+            MemoryMapProcessDataTable.Reset();
+            Memory_Map_DataGrid.ItemsSource = MemoryMapProcessDataTable.DefaultView;
+            for(int i =0; i < 256; i += 16)
+            {
+                MemoryMapProcessDataTable.Columns.Add(new DataColumn(i.ToString(), typeof(int)));
+            }
+        }
+        private void Refresh_DiskCatalogGrid()
+        {
+            DiskCatalogDataTable.Reset();
+            Disk_Catalog_DataGrid.ItemsSource = DiskCatalogDataTable.DefaultView;
             DiskCatalogDataTable.Columns.Add(new DataColumn("", typeof(int)));
-
-
+        }
+        private void Refresh_DiskMapGrid()
+        {
+            DiskMapDataTable.Reset();
+            Disk_Map_DataGrid.ItemsSource = DiskMapDataTable.DefaultView;
             DiskMapDataTable.Columns.Add(new DataColumn("", typeof(int)));
-
-
+        }
+        private void Refresh_DiskSectorGrid()
+        {
+            DiskSectorDataTable.Reset();
+            Disk_Sector_DataGrid.ItemsSource = DiskSectorDataTable.DefaultView;
             DiskSectorDataTable.Columns.Add(new DataColumn("", typeof(int)));
-
-
-
         }
 
         private void Sector_Increment_Button_Click(object sender, RoutedEventArgs e)
@@ -296,37 +317,6 @@ namespace Kyrsovoy_2_OS
         }
 
         private void Edit_File_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Address_Increment_Button_Click(object sender, RoutedEventArgs e)
-        {
-            string str = string.Join("", Address_TextBox.Text.Where(c => char.IsDigit(c)));
-            if (int.TryParse(str, out _))
-            {
-                Address_TextBox.Text = (int.Parse(str) + 1).ToString();
-            }
-            else
-            {
-                MessageBox.Show("В поле адресс должно быть число", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void Address_Decrement_Button_Click(object sender, RoutedEventArgs e)
-        {
-            string str = string.Join("", Address_TextBox.Text.Where(c => char.IsDigit(c)));
-            if (int.TryParse(str, out _))
-            {
-                Address_TextBox.Text = (int.Parse(str) - 1).ToString();
-            }
-            else
-            {
-                MessageBox.Show("В поле адресс должно быть число", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void Address_Content_Button_Click(object sender, RoutedEventArgs e)
         {
 
         }
@@ -424,6 +414,7 @@ namespace Kyrsovoy_2_OS
         private void TextBox_INT_TextChanged(object sender, TextChangedEventArgs e)
         {
             ((TextBox)e.Source).Text = string.Join("", ((TextBox)e.Source).Text.Where(c => char.IsDigit(c)));
+            if (((TextBox)e.Source).Text.Length > 10) ((TextBox)e.Source).Text = ((TextBox)e.Source).Text.Substring(0, 10);
         }
 
         private void Button_Create_Processes_Click(object sender, RoutedEventArgs e)
@@ -445,11 +436,22 @@ namespace Kyrsovoy_2_OS
                 MessageBox.Show("Введите время появления процеса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            nProcess process = new nProcess(int.Parse(TextBox_Exec_Time.Text), ComboBox_Priority.SelectedIndex, int.Parse(TextBox_Waiting_Time.Text));
+            if (string.IsNullOrEmpty(TextBox_Size.Text))
+            {
+                MessageBox.Show("Введите размер процеса, занимаемого в памяти", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            nProcess process = new nProcess(int.Parse(TextBox_Exec_Time.Text), ComboBox_Priority.SelectedIndex, int.Parse(TextBox_Waiting_Time.Text), int.Parse(TextBox_Size.Text));
             processList.Add(process);
             ProcessDataTable.Rows.Add(process.getProcessDataRow(ProcessDataTable));
             MemoryProcessDataTable.Rows.Add(process.getMemoryProcessDataRow(MemoryProcessDataTable));
             //Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
+
+            Label_Page_Size.Content = Vals.LEN_OF_PAGE;
+            Label_Total_Count_Page.Content = Vals.Total_Pages;
+            Label_Total_Count_Virt_Page.Content = Vals.Total_Virt_Pages;
+            Label_Rem_Total_Count_Page.Content = Vals.Total_Rem_Pages;
+            Label_Rem_Total_Count_Virt_Page.Content = Vals.Total_Rem_Virt_Pages;
         }
 
         private void Button_Delete_Processes_Click(object sender, RoutedEventArgs e)
@@ -477,6 +479,10 @@ namespace Kyrsovoy_2_OS
             }
             ProcessDataTable.AcceptChanges();
         }
+        void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex()).ToString();
+        }
 
         private void Process_DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
@@ -487,6 +493,28 @@ namespace Kyrsovoy_2_OS
                 DataRowView dataRowView = (DataRowView)Process_DataGrid.SelectedItem;
                 TextBox_PID.Text = dataRowView["PID"].ToString();
             }
+        }
+
+        private void Memory_Process_DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            if (Memory_Process_DataGrid.SelectedIndex != -1)
+            {
+                DataRowView dataRowView = (DataRowView)Memory_Process_DataGrid.SelectedItem;
+                nProcess process = processList.Single(x => x.id.ToString() == dataRowView["PID"].ToString());
+
+                Label_PID.Content = process.id;
+                Label_Size.Content = process.size;
+                Label_Count_Del_Page_in_RAM.Content = process.processMap.Count_Del_Page_in_RAM;
+                Label_Page_in_RAM.Content = process.processMap.Count_Page;
+                Label_Page_in_Virt.Content = process.processMap.Count_Virt_Page;
+                Label_Count_Page.Content = process.processMap.Count_Virt_Page;
+                Label_Free_Last_Page.Content = process.processMap.Free_Last_Page;
+            }
+        }
+
+        private void Memory_Map_DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex()%4*256).ToString();
         }
     }
 }
