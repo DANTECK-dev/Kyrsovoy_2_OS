@@ -27,7 +27,16 @@ namespace Kyrsovoy_2_OS
     /// </summary>
     public partial class MainWindow : Window
     {
-        DataTable ProcessDataTable = new DataTable();
+
+        DataTable ProcessDataTable = new DataTable();           //Process_DataGrid центр 1
+        DataTable MemoryProcessDataTable = new DataTable();     //Memory_Process_DataGrid слева 2
+        DataTable MemoryMapProcessDataTable = new DataTable();  //Memory_Process_DataGrid верх 2
+        DataTable MemoryAdreessDataTable = new DataTable();     //Memory_Process_DataGrid низ 2
+        DataTable DiskCatalogDataTable = new DataTable();       //Disk_Catalog_DataGrid слева 3
+        DataTable DiskMapDataTable = new DataTable();           //Disk_Map_DataGrid верх 3
+        DataTable DiskSectorDataTable = new DataTable();        //Disk_Sector_DataGrid слева 3
+        //DataTable ProcessDataTable = new DataTable();
+        //DataTable ProcessDataTable = new DataTable();
 
         List<nProcess> processList = new List<nProcess>();
 
@@ -54,7 +63,6 @@ namespace Kyrsovoy_2_OS
         bool done_1 = false;
         double Exec = 0;
         double Waiting = 0;
-        int Quant = 0;
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
@@ -77,9 +85,11 @@ namespace Kyrsovoy_2_OS
             textColumn.Binding = new Binding(tact.ToString());
             Process_DataGrid.Columns.Add(textColumn);
 
-            if (tact % int.Parse(TextBox_Quantum_Time.Text) == 0 && lhProcesses[1] != null);
+            int tik = int.Parse(TextBox_Quantum_Time.Text);
+            int kit = tact % tik;
+            if (tact % int.Parse(TextBox_Quantum_Time.Text) == 0)
             {
-                for (int i = 0; i < lhProcesses[1].Count - 1; i++)
+                for (int i = 0; i < lhProcesses[1].Count - 2; i++)
                 {
                     if (i == 0)
                     {
@@ -90,7 +100,6 @@ namespace Kyrsovoy_2_OS
                     else
                     {
                         (lhProcesses[1][i + 1], lhProcesses[1][i]) = (lhProcesses[1][i], lhProcesses[1][i + 1]);
-                        i++;
                     }
                 }
 
@@ -190,11 +199,26 @@ namespace Kyrsovoy_2_OS
             TextBlock_Avg_Waiting_Time.Text = (Math.Round(Waiting / (double)processList.Count, 3)).ToString();
         }
 
+
         private void Refresh_ProcessGrid()
         {
             ProcessDataTable.Reset();
+            MemoryProcessDataTable.Reset();
+            MemoryMapProcessDataTable.Reset();
+            MemoryAdreessDataTable.Reset();
+            DiskCatalogDataTable.Reset();
+            DiskMapDataTable.Reset();
+            DiskSectorDataTable.Reset();
+
             //Process_DataGrid.Columns.Clear();
             Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
+            Memory_Process_DataGrid.ItemsSource = MemoryProcessDataTable.DefaultView;
+            Memory_Map_DataGrid.ItemsSource = MemoryMapProcessDataTable.DefaultView;
+            Memory_Address_DataGrid.ItemsSource = MemoryAdreessDataTable.DefaultView;
+            Disk_Catalog_DataGrid.ItemsSource = DiskCatalogDataTable.DefaultView;
+            Disk_Map_DataGrid.ItemsSource = DiskMapDataTable.DefaultView;
+            Disk_Sector_DataGrid.ItemsSource = DiskSectorDataTable.DefaultView;
+
 
             processList = new List<nProcess>();
 
@@ -202,6 +226,27 @@ namespace Kyrsovoy_2_OS
             ProcessDataTable.Columns.Add(new DataColumn("Исполнения", typeof(int)));
             ProcessDataTable.Columns.Add(new DataColumn("Появления", typeof(int)));
             ProcessDataTable.Columns.Add(new DataColumn("Очередь", typeof(int)));
+
+            MemoryProcessDataTable.Columns.Add(new DataColumn("PID", typeof(int)));
+            MemoryProcessDataTable.Columns.Add(new DataColumn("Color", typeof(SolidColorBrush)));
+
+
+            MemoryMapProcessDataTable.Columns.Add(new DataColumn("", typeof(int)));
+
+
+            MemoryAdreessDataTable.Columns.Add(new DataColumn("", typeof(int)));
+
+
+            DiskCatalogDataTable.Columns.Add(new DataColumn("", typeof(int)));
+
+
+            DiskMapDataTable.Columns.Add(new DataColumn("", typeof(int)));
+
+
+            DiskSectorDataTable.Columns.Add(new DataColumn("", typeof(int)));
+
+
+
         }
 
         private void Sector_Increment_Button_Click(object sender, RoutedEventArgs e)
@@ -402,8 +447,9 @@ namespace Kyrsovoy_2_OS
             }
             nProcess process = new nProcess(int.Parse(TextBox_Exec_Time.Text), ComboBox_Priority.SelectedIndex, int.Parse(TextBox_Waiting_Time.Text));
             processList.Add(process);
-            ProcessDataTable.Rows.Add(process.getDataRow(ProcessDataTable));
-            Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
+            ProcessDataTable.Rows.Add(process.getProcessDataRow(ProcessDataTable));
+            MemoryProcessDataTable.Rows.Add(process.getMemoryProcessDataRow(MemoryProcessDataTable));
+            //Process_DataGrid.ItemsSource = ProcessDataTable.DefaultView;
         }
 
         private void Button_Delete_Processes_Click(object sender, RoutedEventArgs e)
