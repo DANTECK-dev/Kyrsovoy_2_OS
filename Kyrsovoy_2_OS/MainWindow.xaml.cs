@@ -246,9 +246,9 @@ namespace Kyrsovoy_2_OS
         {
             MemoryMapProcessDataTable.Reset();
             Memory_Map_DataGrid.ItemsSource = MemoryMapProcessDataTable.DefaultView;
-            for(int i =0; i < 256; i += 16)
+            for (int i = 0; i < 256; i += 16)
             {
-                MemoryMapProcessDataTable.Columns.Add(new DataColumn(i.ToString(), typeof(int)));
+                MemoryMapProcessDataTable.Columns.Add(new DataColumn(i.ToString(), typeof(string)));
             }
         }
         private void Refresh_DiskCatalogGrid()
@@ -497,24 +497,33 @@ namespace Kyrsovoy_2_OS
 
         private void Memory_Process_DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            if (Memory_Process_DataGrid.SelectedIndex != -1)
-            {
-                DataRowView dataRowView = (DataRowView)Memory_Process_DataGrid.SelectedItem;
-                nProcess process = processList.Single(x => x.id.ToString() == dataRowView["PID"].ToString());
+            if (Memory_Process_DataGrid.SelectedIndex == -1) return;
 
-                Label_PID.Content = process.id;
-                Label_Size.Content = process.size;
-                Label_Count_Del_Page_in_RAM.Content = process.processMap.Count_Del_Page_in_RAM;
-                Label_Page_in_RAM.Content = process.processMap.Count_Page;
-                Label_Page_in_Virt.Content = process.processMap.Count_Virt_Page;
-                Label_Count_Page.Content = process.processMap.Count_Virt_Page;
-                Label_Free_Last_Page.Content = process.processMap.Free_Last_Page;
-            }
+            DataRowView dataRowView = (DataRowView)Memory_Process_DataGrid.SelectedItem;
+            nProcess process = processList.Single(x => x.id.ToString() == dataRowView["PID"].ToString());
+
+            Text_Del_Page.Content = $"Количество удаленных страниц в оперативной памяти {process.name}:";
+
+            Label_PID.Content = process.id;
+            Label_Size.Content = process.size;
+            Label_Count_Del_Page_in_RAM.Content = process.processMap.Count_Del_Page_in_RAM;
+            Label_Page_in_RAM.Content = process.processMap.Count_Page;
+            Label_Page_in_Virt.Content = process.processMap.Count_Virt_Page;
+            Label_Count_Page.Content = process.processMap.Count_Virt_Page;
+            Label_Free_Last_Page.Content = process.processMap.Free_Last_Page;
+
+            MemoryMapProcessDataTable.Rows.Clear();
+
+            var dataRows = process.getMemoryMapProcessDataRow(MemoryMapProcessDataTable);
+
+            foreach(DataRow row in dataRows)
+                MemoryMapProcessDataTable.Rows.Add(row);
+
         }
 
         private void Memory_Map_DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            e.Row.Header = (e.Row.GetIndex()%4*256).ToString();
+            e.Row.Header = (e.Row.GetIndex() % 4 * 256).ToString();
         }
     }
 }

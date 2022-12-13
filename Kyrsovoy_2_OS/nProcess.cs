@@ -20,10 +20,10 @@ namespace Kyrsovoy_2_OS
         public bool work { get; set; }
         public int size { get; set; }
         public SolidColorBrush color { get; set; }
-        public ProcessMap processMap { get; set; } = new();
+        public ProcessMap processMap { get; set; } = new ProcessMap();
         public nProcess(int cpuBurst, int queue, int createTime, int size)
         {
-            this.name = "Proc_" + count++;
+            this.name = (count++).ToString();
             Random rand = new Random();
             this.id = rand.Next(99999999);
             this.cpuBurst = cpuBurst;
@@ -52,9 +52,31 @@ namespace Kyrsovoy_2_OS
             dataRow["Color"] = this.color;
             return dataRow;
         }
+        public List<DataRow>getMemoryMapProcessDataRow(DataTable dataTable)
+        {
+            List<DataRow> dataRow = new List<DataRow>();
+            int temp_size = this.size;
+            int index = -1;
+
+            for(int i = 0; i < temp_size; i+=16)
+            {
+                if (i % 256 == 0)
+                {
+                    index++;
+                    dataRow.Add(dataTable.NewRow());
+                    temp_size -= i;
+                    i = 0;
+                }
+
+                if(temp_size >= i)
+                {
+                    dataRow[index][i.ToString()] = "#####";
+                }
+            }
+            return dataRow;
+        }
         public void calcMap()
         {
-            long q = 0, q10;
             if (this.size % Vals.LEN_OF_PAGE != 0)
             {
                 processMap.Count_Virt_Page = 1 + this.size / Vals.LEN_OF_PAGE;
@@ -67,11 +89,11 @@ namespace Kyrsovoy_2_OS
             }
             processMap.Count_Page = 1;
 
-            if (processMap.Count_Virt_Page > q)
+            if (processMap.Count_Virt_Page > Vals.q)
             {
-                q = processMap.Count_Virt_Page;
+                Vals.q = processMap.Count_Virt_Page;
                 processMap.Count_Del_Page_in_RAM = 1;
-                q10 = q - processMap.Count_Del_Page_in_RAM;
+                //q10 = q - processMap.Count_Del_Page_in_RAM;
             }
 
             if ((Vals.Total_Rem_Pages >= processMap.Count_Page) && (Vals.Total_Rem_Virt_Pages >= processMap.Count_Virt_Page))
@@ -82,7 +104,7 @@ namespace Kyrsovoy_2_OS
             else
             {
                 Vals.Total_Rem_Pages = Vals.Total_Rem_Pages + processMap.Count_Del_Page_in_RAM - processMap.Count_Page;
-                Vals.Total_Rem_Virt_Pages = Vals.Total_Rem_Virt_Pages + (q - processMap.Count_Del_Page_in_RAM) - processMap.Count_Virt_Page;
+                Vals.Total_Rem_Virt_Pages = Vals.Total_Rem_Virt_Pages + (Vals.q - processMap.Count_Del_Page_in_RAM) - processMap.Count_Virt_Page;
             }
         }
     }

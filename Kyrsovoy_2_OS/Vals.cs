@@ -16,5 +16,6 @@ namespace Kyrsovoy_2_OS
         public static long Total_Virt_Pages { get; set; }
         public static long Total_Rem_Pages { get; set; }
         public static long Total_Rem_Virt_Pages { get; set; }
+        public static long q { get; set; }
     }
 }

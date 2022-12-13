@@ -123,7 +123,8 @@ CanUserAddRows="False" CanUserReorderColumns ="False" SelectionMode="Single" Ena
                             </Grid.ColumnDefinitions>
                             <Label Content="PID: "                                                      Grid.Column="0" Margin="10,0,0,0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
                             <Label Content="Размер процесса: "                                          Grid.Column="0" Margin="10,0,0,0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
-                            <Label Content="Количество удаленных страниц в оперативной памяти 0: "      Grid.Column="0" Margin="10,0,0,0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
+                            <Label x:Name="Text_Del_Page" 
+                                   Content="Количество удаленных страниц в оперативной памяти 0:"       Grid.Column="0" Margin="10,0,0,0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
                             <Label Content="Занимает страниц в оперативной памяти: "                    Grid.Column="0" Margin="10,0,0,0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
                             <Label Content="Занимает страниц в виртуальной памяти: "                    Grid.Column="0" Margin="10,0,0,0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
                             <Label Content="Количество занятых страниц: "                               Grid.Column="0" Margin="10,0,0,0" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="auto"/>
