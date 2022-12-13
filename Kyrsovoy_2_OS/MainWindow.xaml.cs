@@ -212,7 +212,9 @@ namespace Kyrsovoy_2_OS
             ProcessDataTable.AcceptChanges();
             Process_DataGrid.Items.Refresh();
 
-            TextBlock_Avg_Exec_Time.Text = (Math.Round(Exec / (double)processList.Count, 3)).ToString();
+            //double t_avg_exec = Math.Round((Exec + Waiting) / (double)processList.Count, 3);
+            //double t_avg_wait = Math.Round(Waiting / (double)processList.Count, 3);
+            TextBlock_Avg_Exec_Time.Text = (Math.Round((Exec+Waiting) / (double)processList.Count, 3)).ToString();
             TextBlock_Avg_Waiting_Time.Text = (Math.Round(Waiting / (double)processList.Count, 3)).ToString();
         }
 
