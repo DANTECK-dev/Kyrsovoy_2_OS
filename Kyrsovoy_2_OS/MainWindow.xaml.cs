@@ -367,6 +367,8 @@ namespace Kyrsovoy_2_OS
                 ProcessDataTable.Rows.Remove(row);
                 break;
             }
+            timer.Stop();
+            if(processList.Count == 0)TextBox_Quantum_Time.IsEnabled = true;
             Label_Page_Size.Content = Vals.LEN_OF_PAGE;
             Label_Total_Count_Page.Content = Vals.Total_Pages;
             Label_Total_Count_Virt_Page.Content = Vals.Total_Virt_Pages;
